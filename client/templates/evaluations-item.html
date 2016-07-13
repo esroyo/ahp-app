@@ -1,0 +1,14 @@
+---
+name: evaluations-item
+url: /evaluations/:slug
+controller: EvaluationController as ctrl
+animationIn: slideInLeft
+animationOut: slideInRight
+---
+<div class="grid-container">
+  <div class="grid-block horizontal v-align">
+    <div class="grid-content align-center">
+      <h1>{{ ctrl.data.slug }}</h1>
+    </div>
+  </div>
+</div>

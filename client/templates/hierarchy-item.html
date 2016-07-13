@@ -1,0 +1,142 @@
+---
+name: hierarchy-item
+url: /hierarchy/:slug
+controller: HierarchyController as ctrl
+animationIn: slideInLeft
+animationOut: slideInRight
+---
+<div class="grid-container vertical" id="hierarchy">
+  <div class="grid-block">
+    <div class="grid-content">
+      <h1>{{ctrl.name}}</h1>
+    </div>
+  </div>
+  <div class="grid-block small-up-1 medium-up-2">
+    <div class="grid-content">
+      <h5 class="subheader">Hierarchy</h5>
+
+      <div class="importance-block">
+      <section class="block-list" >
+        <ul>
+          <li class="hierarchy-switch">
+            <span class="text-right">Edit</span>
+            <div class="switch small">
+              <input id="edit-switch" type="checkbox" ng-model="ctrl.editMode">
+              <label for="edit-switch"></label>
+            </div>
+          </li>
+        </ul>
+      </section>
+      </div>
+
+        <ul class="vertical menu hierarchy"
+            data-accordion-menu
+            ng-class="{'edit': ctrl.editMode}"
+          >
+          <li>
+            <a href="#" ng-click="ctrl.select($event)">
+              {{ctrl.root.model.name}}
+            </a>
+            <ul class="menu vertical nested is-active" ng-show="ctrl.root.hasChildren()">
+              <li ng-repeat="node in ctrl.root.children" ng-include="'templates/partials/tree_item.html'">
+              </li>
+            </ul>
+          </li>
+        </ul>
+
+        <p>
+          <a class="expand button" href="#" zf-open="addCriteriaModal">Add a new criteria</a>
+        </p>
+    </div>
+
+    <div class="grid-content">
+      <h5 class="subheader">The importance of {{ ctrl.currentNode.model.name }} to {{ ctrl.currentNodeParent.model.name }}</h5>
+
+      <div class="importance-block">
+      <section class="block-list" >
+        <ul>
+
+          <li class="hierarchy-switch">
+            <span class="text-right">Help</span>
+            <div class="switch small">
+              <input id="help-switch" type="checkbox" ng-model="ctrl.showHelp">
+              <label for="help-switch"></label>
+            </div>
+          </li>
+
+          <li ng-repeat="node in ctrl.currentNodeSiblings track by node.model.name">
+            <div class="grid-block v-align">
+              <div class="grid-content small-3 text-right">
+                <span>{{ ctrl.currentNode.model.name }}</span>
+              </div>
+              <div class="grid-content small-6">
+            <input type="range" min="-4" max="4" step="1" ng-model="ctrl.currentNode.model.comparisons[node.model.name]" ng-change="node.model.comparisons[ctrl.currentNode.model.name] = -1 * ctrl.currentNode.model.comparisons[node.model.name]">
+              </div>
+              <div class="grid-content small-3 text-left">
+                <span>{{ node.model.name }}</span>
+              </div>
+              <div class="grid-content small-6 small-offset-3" ng-show="ctrl.showHelp">
+
+                <p class="card card-help" ng-show="ctrl.currentNode.model.comparisons[node.model.name] == -4">
+                  The evidence favoring <em>{{ ctrl.currentNode.model.name }}</em> over <em>{{ node.model.name }}</em> is of the highest possible order of affirmation.
+                </p>
+                <p class="card card-help" ng-show="ctrl.currentNode.model.comparisons[node.model.name] == -3">
+                  <em>{{ ctrl.currentNode.model.name }}</em> is favored very strongly over <em>{{ node.model.name }}</em>; its dominance is demonstrated in practice.
+                </p>
+                <p class="card card-help" ng-show="ctrl.currentNode.model.comparisons[node.model.name] == -2">
+                  Experience and judgement strongly favor <em>{{ ctrl.currentNode.model.name }}</em> over <em>{{ node.model.name }}</em>.
+                </p>
+                <p class="card card-help" ng-show="ctrl.currentNode.model.comparisons[node.model.name] == -1">
+                  Experience and judgement slightly favor <em>{{ ctrl.currentNode.model.name }}</em> over <em>{{ node.model.name }}</em>.
+                </p>
+                <p class="card card-help" ng-show="ctrl.currentNode.model.comparisons[node.model.name] == 0">
+                  <em>{{ ctrl.currentNode.model.name }}</em> and <em>{{ node.model.name }}</em> contribute equally to <em>{{ ctrl.currentNodeParent.model.name }}</em>.
+                </p>
+                <p class="card card-help" ng-show="ctrl.currentNode.model.comparisons[node.model.name] == 1">
+                  Experience and judgement slightly favor <em>{{ node.model.name }}</em> over <em>{{ ctrl.currentNode.model.name }}</em>.
+                </p>
+                <p class="card card-help" ng-show="ctrl.currentNode.model.comparisons[node.model.name] == 2">
+                  Experience and judgement strongly favor <em>{{ node.model.name }}</em> over <em>{{ ctrl.currentNode.model.name }}</em>.
+                </p>
+                <p class="card card-help" ng-show="ctrl.currentNode.model.comparisons[node.model.name] == 3">
+                  <em>{{ node.model.name }}</em> is favored very strongly over <em>{{ ctrl.currentNode.model.name }}</em>; its dominance is demonstrated in practice.
+                </p>
+                <p class="card card-help" ng-show="ctrl.currentNode.model.comparisons[node.model.name] == 4">
+                  The evidence favoring <em>{{ node.model.name }}</em> over <em>{{ ctrl.currentNode.model.name }}</em> is of the highest possible order of affirmation.
+                </p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+
+<div zf-modal="" id="addCriteriaModal" class="collapse">
+  <div class="grid-block vertical">
+    <div class="primary title-bar">
+      <div class="center title">Add a new criteria</div>
+      <span zf-close="" class="left"><a><img zf-iconic="" icon="circle-x" size="small"></a></span>
+    </div>
+    <div class="grid-content padding" style="padding-top: 1rem;">
+
+      <form name="nodeForm" ng-submit="ctrl.addNewNode()" novalidate>
+        <label for="newNodeParent">Select the parent</label>
+        <select name="newNodeParent" id="newNodeParent" ng-model="ctrl.newNode.parent" ng-options="ctrl.getId(node) as ctrl.formatPath(node) for node in ctrl.root.all()" required></select>
+        <label>
+          Name
+          <input name="newNodeName" id="newNodeName" type="text" ng-model="ctrl.newNode.name" required>
+        </label>
+        <button class="button" type="submit" ng-class="{'disabled': nodeForm.$invalid}" ng-disabled="nodeForm.$invalid">OK</button>
+      </form>
+      <a zf-close="" class="button">Cancel</a>
+    </div>
+  </div>
+</div>
+
+
+<script>setTimeout(function () { $('#hierarchy').foundation(); }, 800);</script>

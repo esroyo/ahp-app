@@ -1,0 +1,14 @@
+<div class="edit-buttons">
+<a class="edit-button button tiny float-right" href="#"><img zf-iconic="" icon="circle-x" data-direction="right" size="small"></a>
+<a class="edit-button button tiny float-right" href="#"><img zf-iconic="" icon="cog" data-direction="right" size="small"></a>
+</div>
+<a href="#"
+  ng-class="{'is-not-drilldown-submenu-parent': !node.hasChildren(), 'selected': ctrl.isEqual(node, ctrl.currentNode)}"
+  ng-click="ctrl.select($event)"
+  >{{node.model.name}}
+</a>
+</ul>
+<ul class="menu vertical nested is-active" ng-show="node.hasChildren()">
+  <li ng-repeat="node in node.children" ng-include="'templates/partials/tree_item.html'"></li>
+
+</ul>
